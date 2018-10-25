@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>选座系统</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="./source/index.css" />
+    
+</head>
+<body>
+    <div class="content">
+        <canvas id="canvas" width="600" height="400">
+            您的浏览器不支持html5的canvas元素，请更换或升级浏览器！
+        </canvas>
+        <div class="text">
+            <div class="title">Tips:</div>
+            <p>1、体育馆由ABCD四个区域组成，票号"A-01-23"表示A区第一排从左往右的第23个座位，依次类推；</p>
+            <p>2、用户一次性可购买1-5张票，系统随机为用户分配座位，但会尽可能将同一用户的票尽可能安排在一起。</p>
+        </div>
+        <!-- <form> -->
+            <input name="seatNumber" value="" placeholder="请输入1-5确定选票数" id="tempNumber" />
+            <button id="sure">确定</button>
+        <!-- </form> -->
+    </div>
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+    <script src="./source/index.js"></script>
+</body>
+</html>
