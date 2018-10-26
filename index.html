@@ -10,19 +10,51 @@
 </head>
 <body>
     <div class="content">
+        <div class="mainTitle">迎新晚会购票系统</div>
         <canvas id="canvas" width="600" height="400">
             您的浏览器不支持html5的canvas元素，请更换或升级浏览器！
         </canvas>
         <div class="text">
             <div class="title">Tips:</div>
-            <p>1、体育馆由ABCD四个区域组成，票号"A-01-23"表示A区第一排从左往右的第23个座位，依次类推；</p>
+            <p>1、体育馆由ABCD四个区域组成，票号“A-1-1”表示A区第一排从左往右的第1个座位，“B-20-50”表示B区第20排第50个座位，依此类推；</p>
             <p>2、用户一次性可购买1-5张票，系统随机为用户分配座位，但会尽可能将同一用户的票尽可能安排在一起。</p>
         </div>
-        <!-- <form> -->
-            <input name="seatNumber" value="" placeholder="请输入1-5确定选票数" id="tempNumber" />
-            <button id="sure">确定</button>
-        <!-- </form> -->
+        <div class="startDeal">
+            <div id="enterSelect">开始选票</div>
+        </div>
+        <div class="seatsNumber">您的票号为：</div>
     </div>
+    <div class="seats_content">
+        <div class="changeArae">
+            <div id="continue">
+                <p>Start</p>
+                <input name="seatNumber" value="" placeholder="请输入1-5确定选票数" id="tempNumber" />
+                <button id="sure">确定</button>
+                <button id="out">退出</button>
+            </div>
+        </div>
+        <div class="area_A">
+            <div class="area_tips">A区</div>
+            <div class="areas">
+            </div>
+        </div>
+        <div class="area_B">
+            <div class="area_tips">B区</div>
+            <div class="areas">
+            </div>
+        </div>
+        <div class="area_C">
+            <div class="area_tips">C区</div>
+            <div class="areas">
+            </div>
+        </div>
+        <div class="area_D">
+            <div class="area_tips">D区</div>
+            <div class="areas">
+            </div>
+        </div>
+    </div>
+    <div class="toastMessage"></div>
     <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
     <script src="./source/index.js"></script>
 </body>

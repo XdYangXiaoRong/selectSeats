@@ -16,21 +16,22 @@ document.addEventListener("DOMContentLoaded", function(){
     drawStage(c)
     
     /**
-     * 若第一排50个座位，依此每排递增2个座位，最后一排为100个，所以总共有0，1，2，……25,总共26排。
+     * 若第一排50(base=50)个座位，依此每排递增2个座位，最后一排为100个，所以总共有0，1，2，……25,总共26(rowNumber=26)排。
      * 每排对应的座位数依此为50，52，53，……，100
      */
     var seatSelect={
-        base:5,
-        rowNumber:3,//每个区分别有多少排座位
+        base:5,//第一排的座位数
+        rowNumber:3,//每个区分别有多少排座位，这里是26排
         rowCount:[],//每一排总共多少座位数
         array:[],//当前操作数组
-        arrayA:[],//A,B,C,D四个区的座位存储，上一个区找不到位置才新建下一个区的数组
+        arrayA:[],//A,B,C,D四个区的座位存储，上一个区找不到位置则进入下一个区的数组
         arrayB:[], 
         arrayC:[],
         arrayD:[],
         holdArray:[],
         areasCount:0,//统计搜素了几个区域找到位置的
         areas:["A","B","C","D"],//A,B,C,D四个区的标识符号
+        emptyFlag:false,//用于标记小区的票是否已经被选完，选完则不进行查询
         flag:false,//用于记录连续分配是否成功
         selectedSeats:[],//每一次选中的座
         initArray:function(){//开辟一个新数组的方法
@@ -51,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function(){
             }
             return array;
         },
-        AreaChoose:function(array,tempNumber){
+        AreaChoose:function(array,tempNumber){//座位的选择
             console.log("areasCount",this.areasCount)
             for(var i=0;i<array.length;i++){
                 var maxSeats=array[i].length-1;//取得当前排还剩余的座位数的下标j
@@ -71,11 +72,10 @@ document.addEventListener("DOMContentLoaded", function(){
                     }
                     for(var k=index;k<index+tempNumber*1;k++){//将选中的座位全部标记为1
                         array[i][k]=1;
-                        this.selectedSeats.push(this.areas[this.areasCount]+'-'+i+'-'+k)
+                        this.selectedSeats.push(this.areas[this.areasCount]+'-'+(i+1*1)+'-'+(k+1*1))
                     }
                     this.flag = true;
-                    console.log('selectedSeats',this.selectedSeats)
-                    console.log(23333,array)
+        
                     if(this.areasCount===0){
                         this.arrayA=array;
                     }else if(this.areasCount===1){
@@ -85,7 +85,11 @@ document.addEventListener("DOMContentLoaded", function(){
                     }else if(this.areasCount===3){
                         this.arrayD=array;
                     }
-                    console.log(9999,this.arrayA,this.arrayB,this.arrayC,this.arrayD)
+                    // this.holdArray[this.areasCount]=this.array;
+                    this.array=this.arrayA;
+                    this.areasCount = 0;
+                    // console.log(77777,this.array)
+                    // console.log(9999,this.arrayA,this.arrayB,this.arrayC,this.arrayD)
                     break;
                 }
             }
@@ -93,109 +97,90 @@ document.addEventListener("DOMContentLoaded", function(){
                 this.areasCount++;//当前区域没有合适的座位了，到下一个区寻找
                 if(this.areasCount<4){
                     console.log("进入下一个区")
-                    // this.array=this.initArray();
                     this.array=this.holdArray[this.areasCount];
                     array=this.array;//置空
                     this.AreaChoose(array,tempNumber);
+                    
                 }else{//四个区都没有连续的座位了
                     console.log("四个区都没有足够个数的连续的座位了")
                     console.log(9999,this.arrayA,this.arrayB,this.arrayC,this.arrayD)
                     this.areasCount=0;// 
-                    // while(tempNumber>0){
-                        for(var i=0;i<this.arrayA.length;i++){
-                            for(var j=0;j<this.arrayA[i].length-1;j++){
-                                var maxSeats=this.arrayA[i].length-1;//取得当前排还剩余的座位数的下标j
-                                var leftNumber=this.arrayA[i][maxSeats];//取得当前排剩余的座位数
-                                if(this.arrayA[i][j]===0 &&this.selectedSeats.length<tempNumber){
-                                    leftNumber--;
-                                    this.arrayA[i][maxSeats]=leftNumber;
-                                    this.arrayA[i][j]=1;
-                                    this.selectedSeats.push("A-"+i+'-'+j)
-                                    console.log(this.arrayA)
-                                }
-                                if(this.selectedSeats.length>=tempNumber){
-                                    this.array = this.arrayA;
-                                    this.areasCount=0;
-                                    break;
-                                }
+                    for(var i=0;i<this.arrayA.length;i++){
+                        for(var j=0;j<this.arrayA[i].length-1;j++){
+                            var maxSeats=this.arrayA[i].length-1;//取得当前排还剩余的座位数的下标j
+                            var leftNumber=this.arrayA[i][maxSeats];//取得当前排剩余的座位数
+                            if(this.arrayA[i][j]===0 &&this.selectedSeats.length<tempNumber){
+                                leftNumber--;
+                                this.arrayA[i][maxSeats]=leftNumber;
+                                this.arrayA[i][j]=1;
+                                this.selectedSeats.push("A-"+(i+1*1)+'-'+(j+1*1))
+                                console.log(this.arrayA)
+                            }
+                            if(this.selectedSeats.length>=tempNumber){
+                                // this.array = this.arrayA;
+                                this.areasCount=0;
+                                break;
                             }
                         }
-                        // tempNumber=tempNumber-this.selectedSeats.length;//还差的个数
-                        // this.areasCount=1;
-                        // if(tempNumber<=0){
-                        //     return
-                        // }
-                        for(var i=0;i<this.arrayB.length;i++){
-                            for(var j=0;j<this.arrayB[i].length-1;j++){
-                                var maxSeats=this.arrayB[i].length-1;//取得当前排还剩余的座位数的下标j
-                                var leftNumber=this.arrayB[i][maxSeats];//取得当前排剩余的座位数
-                                if(this.arrayB[i][j]===0 &&this.selectedSeats.length<tempNumber){
-                                    leftNumber--;
-                                    this.arrayB[i][maxSeats]=leftNumber;
-                                    this.arrayB[i][j]=1;
-                                    this.selectedSeats.push("B-"+i+'-'+j)
-                                    console.log(this.arrayB)
-                                }
-                                if(this.selectedSeats.length>=tempNumber){
-                                    this.array = this.arrayB;
-                                    // this.areasCount=1;
-                                    break;
-                                }
+                    }
+                    for(var i=0;i<this.arrayB.length;i++){
+                        for(var j=0;j<this.arrayB[i].length-1;j++){
+                            var maxSeats=this.arrayB[i].length-1;//取得当前排还剩余的座位数的下标j
+                            var leftNumber=this.arrayB[i][maxSeats];//取得当前排剩余的座位数
+                            if(this.arrayB[i][j]===0 &&this.selectedSeats.length<tempNumber){
+                                leftNumber--;
+                                this.arrayB[i][maxSeats]=leftNumber;
+                                this.arrayB[i][j]=1;
+                                this.selectedSeats.push("B-"+(i+1*1)+'-'+(j+1*1))
+                            }
+                            if(this.selectedSeats.length>=tempNumber){
+                                // this.array = this.arrayB;
+                                this.areasCount=0;
+                                break;
                             }
                         }
-                        // tempNumber=tempNumber-this.selectedSeats.length;//还差的个数
-                        // if()
-                        // this.areasCount=2;
-                        // if(tempNumber<=0){
-                        //     return
-                        // }
-                        for(var i=0;i<this.arrayC.length;i++){
-                            for(var j=0;j<this.arrayC[i].length-1;j++){
-                                var maxSeats=this.arrayC[i].length-1;//取得当前排还剩余的座位数的下标j
-                                var leftNumber=this.arrayC[i][maxSeats];//取得当前排剩余的座位数
-                                if(this.arrayC[i][j]===0 &&this.selectedSeats.length<tempNumber){
-                                    leftNumber--;
-                                    this.arrayC[i][maxSeats]=leftNumber;
-                                    this.arrayC[i][j]=1;
-                                    this.selectedSeats.push("C-"+i+'-'+j)
-                                    console.log(this.arrayC)
-                                }
-                                if(this.selectedSeats.length>=tempNumber){
-                                    this.array = this.arrayC;
-                                    // this.areasCount=2;
-                                    break;
-                                }
+                    }
+                    for(var i=0;i<this.arrayC.length;i++){
+                        for(var j=0;j<this.arrayC[i].length-1;j++){
+                            var maxSeats=this.arrayC[i].length-1;//取得当前排还剩余的座位数的下标j
+                            var leftNumber=this.arrayC[i][maxSeats];//取得当前排剩余的座位数
+                            if(this.arrayC[i][j]===0 &&this.selectedSeats.length<tempNumber){
+                                leftNumber--;
+                                this.arrayC[i][maxSeats]=leftNumber;
+                                this.arrayC[i][j]=1;
+                                this.selectedSeats.push("C-"+(i+1*1)+'-'+(j+1*1))
+                            }
+                            if(this.selectedSeats.length>=tempNumber){
+                                this.areasCount=0;
+                                break;
                             }
                         }
-                        // tempNumber=tempNumber-this.selectedSeats.length;//还差的个数
-                        // this.areasCount=3
-                        // if(tempNumber<=0){
-                        //     return
-                        // }
-                        for(var i=0;i<this.arrayD.length;i++){
-                            for(var j=0;j<this.arrayD[i].length-1;j++){
-                                var maxSeats=this.arrayD[i].length-1;//取得当前排还剩余的座位数的下标j
-                                var leftNumber=this.arrayD[i][maxSeats];//取得当前排剩余的座位数
-                                if(this.arrayD[i][j]===0 &&this.selectedSeats.length<tempNumber){
-                                    leftNumber--;
-                                    this.arrayD[i][maxSeats]=leftNumber;
-                                    this.arrayD[i][j]=1;
-                                    this.selectedSeats.push("D-"+i+'-'+j)
-                                    console.log(this.arrayD)
-                                }
-                                if(this.selectedSeats.length>=tempNumber){
-                                    this.array = this.arrayD;
-                                    // this.areasCount=3;
-                                }
+                    }
+                    for(var i=0;i<this.arrayD.length;i++){
+                        for(var j=0;j<this.arrayD[i].length-1;j++){
+                            var maxSeats=this.arrayD[i].length-1;//取得当前排还剩余的座位数的下标j
+                            var leftNumber=this.arrayD[i][maxSeats];//取得当前排剩余的座位数
+                            if(this.arrayD[i][j]===0 &&this.selectedSeats.length<tempNumber){
+                                leftNumber--;
+                                this.arrayD[i][maxSeats]=leftNumber;
+                                this.arrayD[i][j]=1;
+                                this.selectedSeats.push("D-"+(i+1*1)+'-'+(j+1*1))
+                            }
+                            if(this.selectedSeats.length>=tempNumber){
+                                this.areasCount=0;
                             }
                         }
-                        this.areasCount=0;
-                        this.array=this.arrayA;
-                        if(this.selectedSeats.length<tempNumber){
+                    }
+                    this.array=this.arrayA;//从A区开始遍历
+                    if(this.selectedSeats.length<tempNumber){
+                        var seatsCouldSelected=this.selectedSeats.length;
+                        if(seatsCouldSelected===0){
                             alert("座位已经被选光了！")
+                        }else{
+                            alert("仅剩"+seatsCouldSelected+"个座位可以选了！")
                         }
-                    // }
-                    console.log('selectedSeats-----2',this.selectedSeats)
+                        this.emptyFlag=true;
+                    }
                 }
             }
         },
@@ -206,116 +191,84 @@ document.addEventListener("DOMContentLoaded", function(){
             this.arrayC=this.initArray();
             this.arrayD=this.initArray();
             this.holdArray=[this.arrayA,this.arrayB,this.arrayC,this.arrayD]
-            console.log(this.array)
             var that=this;
+            $("#enterSelect").click(function(){
+                // $(".seats_content").css("visibility",'visible');
+                $(".seats_content").css("display",'block');
+            })
             $("#sure").click(function(){
-                var tempNumber =Number(($('#tempNumber').val()||'').trim());
+                if(this.emptyFlag){
+                    alert("票已经全部售完！");
+                    return
+                }
+                var reg=/^[1-5]$/;
+                var tempNumber =Number(($('#tempNumber').val()||"").trim());
+                $('#tempNumber').val('');
+                $('#tempNumber2').val('')
+                if(!reg.test(tempNumber)){
+                    $('.toastMessage').css("display","block");
+                    $('.toastMessage').html("请输入1-5之间的数字进行随机选票！");
+                    setTimeout(()=>{
+                        $('.toastMessage').css("display","none");
+                    },1500)
+                    return
+                }
                 console.log(tempNumber)
                 that.flag = false;//用于记录连续分配是否成功
                 that.selectedSeats = [];//选中的座
                 that.AreaChoose(that.array,tempNumber)
                 console.log('selectedSeats-----2',that.selectedSeats)
+
+                //根据所选结果渲染座位界面 
+                var dataValNodes=$('.seat_one');
+                for(var index=0;index<dataValNodes.length;index++){
+                    var data_val=dataValNodes.eq(index).data('val');
+                    var count=0;//遍历次数，找到所有对象后不再遍历
+                    if(count<that.selectedSeats.length){
+                        if(that.selectedSeats.indexOf(data_val)!==-1){
+                            dataValNodes.eq(index).attr("class","seat_one selected");
+                            count++
+                        }
+                    }else{
+                        break;//退出当前循环
+                    }
+                }
+                $('.toastMessage').css("display","block");
+                $('.toastMessage').html("您本次选中的座位号为: "+that.selectedSeats.join(','));
+                $('.seatsNumber').css("display",'block')
+                var html=$('.seatsNumber').html();
+                $('.seatsNumber').html(html+'<br />' + that.selectedSeats.join(','))
+                setTimeout(()=>{
+                    $('.toastMessage').css("display","none");
+                    $('.changeArae').css("display","block");
+                },1500)
                 console.log(9999,that.arrayA,that.arrayB,that.arrayC,that.arrayD)
             })
+            $("#out").click(function(){//退出选座界面
+                // $(".seats_content").css("visibility",'hidden'); 
+                $(".seats_content").css("display","none");
+            })
+        },
+        initSeats:function(){//座位布局初始化
+            var areasDom=$(".areas");
+            var html='';
+            for(var i=0;i<this.areas.length;i++){
+                html='';
+                for(var j=0;j<this.rowNumber;j++){
+                    html+='<div class="row">';
+                    for(var k=0;k<this.rowCount[j];k++){
+                        var str=this.areas[i]+"-"+(j+1*1)+"-"+(k+1*1);
+                        html+='<div class="seat_one" data-val="'+ str+'"></div>'
+                    }
+                    html+='</div>'
+                }
+                areasDom.eq(i).html(html)
+            }
+            
         }
     };
     seatSelect.init();
-    // var base = 5,
-    //     // rowNumber = 26,//一个区域总共26排
-    //     rowNumber=3,
-    //     rowCount = [];//每一排总共多少座位数
-    // var array = [],arrayA = [],arrayB = [], arrayC = [],arrayD = [];
-    // var areas = ["A","B","C","D"];
-    // var areasCount=0;
-    // function init(){
-    //     var rows = [];
-    //     for(var i=0;i<rowNumber;i++){
-    //         rows.push(i);
-    //         rowCount.push(base+2*i);
-    //     }
-    //     var array=new Array(rowNumber);
-    //     for(var i=0;i<array.length;i++){
-    //     array[i] = new Array();
-    //         for(var j=0;j<=rowCount[i];j++){
-    //             array[i][j] = 0;
-    //             if(j===rowCount[i]){
-    //                 array[i][j]=rowCount[i];//最后一个用来存储这一排还剩下的座位号
-    //             }
-    //         }
-    //     }
-    //     return array;
-    // }
-
-    // array=init();
-    
-    
-    // function getSelectedSeat(){//获取已经被选过的座位号
-    //   $.get("http://127.0.0.1:8000/" + new Date().getTime(), function(data){ 
-    //       console.log(2333,data)
-    //       var seatsSelected=JSON.stringify(data).split(',');//根据接口返回已经被选中的座位号
-    //       return seatsSelected
-    //   }).then(function(data){
-    //       console.log(222222,data)
-    //   })
-    // }
-    // getSelectedSeat();
-    // $("#sure").click(function(){
-    //     var tempNumber =Number(($('#tempNumber').val()||'').trim());
-    //     console.log(tempNumber)
-    //     var flag = false,//用于记录连续分配是否成功
-    //         selectedSeats = [];//选中的座
-    //     this.AreaChoose
-        // function Area(){
-        //     console.log("areasCount",areasCount)
-        //     for(var i=0;i<array.length;i++){
-        //         var maxSeats=array[i].length-1;//取得当前排还剩余的座位数的下标j
-        //         var leftNumber=array[i][maxSeats];//取得当前排剩余的座位数
-        //         console.log("leftNumber",leftNumber,typeof leftNumber)
-        //         if(tempNumber>leftNumber){//若果当前行的座位已经不够分，则换到下一行
-        //             continue;
-        //         }else{//否则在当前位置选作
-        //             leftNumber-=tempNumber;
-        //             array[i][maxSeats]=leftNumber;//剩余座位数减此次选中的
-        //             var index=0;//第一个不是没有被选中的座位的第二个下标
-        //             for(var j=0;j<array[i].length;j++){
-        //                 if(array[i][j]===0){//找到第一个没有被选中的座
-        //                     index=j;
-        //                     break;
-        //                 }
-        //             }
-        //             for(var k=index;k<index+tempNumber*1;k++){//将选中的座位全部标记为1
-        //                 array[i][k]=1;
-        //                 selectedSeats.push(areas[areasCount]+'-'+i+'-'+k)
-        //             }
-        //             flag = true;
-        //             console.log('selectedSeats',selectedSeats)
-        //             console.log(23333,array)
-        //             if(areasCount===0){
-        //                 arrayA=array;
-        //             }else if(areasCount===1){
-        //                 arrayB=array;
-        //             }else if(areasCount===2){
-        //                 arrayC=array;
-        //             }else if(areasCount===3){
-        //                 arrayD=array;
-        //             }
-        //             console.log(9999,arrayA,arrayB,arrayC,arrayD)
-        //             break;
-        //         }
-        //     }
-        //     if(!flag){//记录连续分配未成功
-        //         areasCount++;//当前区域没有合适的座位了，到下一个区寻找
-        //         if(areasCount<4){
-        //             console.log("进入下一个区")
-        //             array=init();
-        //             Area();
-        //         }else{//四个区都没有连续的座位了
-        //             console.log("四个区都没有足够个数的连续的座位了")
-        //             console.log(9999,arrayA,arrayB,arrayC,arrayD)
-        //         }
-        //     }
-        // }    
-    // })
+    seatSelect.initSeats();
 }, false);
 function canvasCirle(ele,x,y,r,angle1=0,angle2=360,color){
     ele.save();
@@ -343,17 +296,13 @@ function drawCircularText(ctx,x,y,r,string, startAngle, endAngle ,lv){
     ctx.textBaseline = 'middle';
     
     while (index < string.length) {
-        character = string.charAt(index);
-        
+        character = string.charAt(index); 
         ctx.save();
         ctx.beginPath();
         ctx.translate(x + Math.cos(angle) * radius,
                     y + Math.sin(angle) * radius);
         ctx.rotate(Math.PI/2 + angle);
-        
         ctx.fillText(character, 0, 0);
-//            ctx.strokeText(character, 0, 0);
-        
         angle -= angleDecrement;
         index++;
         ctx.restore();
